@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Container, TextField, Button, Typography, Box, AppBar, Toolbar } from "@mui/material";
+import Layout from "./Layout/Layout";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -15,17 +16,9 @@ export default function Login() {
   };
 
   return (
-    <Box>
-      {/* Navbar */}
-      <AppBar position="static" sx={{ backgroundColor: "rgb(4,4,38)" }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="h6">Skoegle</Typography>
-          <Box>
-            <Button variant="outlined" sx={{ color: "white", borderColor: "white", mr: 2 }}>Login</Button>
-            <Button variant="contained" sx={{ backgroundColor: "white", color: "rgb(4,4,38)" }}>Sign Up</Button>
-          </Box>
-        </Toolbar>
-      </AppBar>
+
+    <Layout>    <Box>
+    
 
       {/* Login Form */}
       <Container maxWidth="sm" sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "80vh" }}>
@@ -60,10 +53,8 @@ export default function Login() {
         </Box>
       </Container>
 
-      {/* Footer */}
-      <Box sx={{ textAlign: "center", p: 2, backgroundColor: "rgb(4,4,38)", color: "white", position: "fixed", width: "100%", bottom: 0 }}>
-        © Skoegle
-      </Box>
-    </Box>
+   
+    </Box></Layout>
+
   );
 }
