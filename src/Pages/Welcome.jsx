@@ -1,7 +1,7 @@
 import { AppBar, Toolbar, Typography, Box, Container, Button, Menu, MenuItem, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useState } from "react";
-import Layout from "./Layout/Layout";
+import Layout from "../Layout/Layout";
 
 export default function Welcome() {
   const [anchorEl, setAnchorEl] = useState(null);

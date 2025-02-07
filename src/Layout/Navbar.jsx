@@ -11,6 +11,7 @@ export default function Navbar(){
           <Box>
             <Button variant="outlined" sx={{ color: "white", borderColor: "white", mr: 2 }}>Login</Button>
             <Button variant="contained" sx={{ backgroundColor: "white", color: "rgb(4,4,38)" }}>Sign Up</Button>
+            
           </Box>
         </Toolbar>
       </AppBar>

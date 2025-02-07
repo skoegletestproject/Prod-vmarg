@@ -1,7 +1,9 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import Login from "./Login"
-import Signup from "./Signup"
-import Welcome from "./welcome"
+import Login from "./Pages/Login"
+import Signup from "./Pages/Signup"
+import Welcome from "./Pages/Welcome"
+import Live from "./Pages/Live"
+import Track from "./Pages/Track"
 export default function App(){
 const router = createBrowserRouter([
   {
@@ -15,6 +17,14 @@ const router = createBrowserRouter([
   {
     path:"/signup",
     element:<Signup/>
+  },
+  {
+    path:"/live",
+    element:<Live/>
+  },
+  {
+    path:"/track",
+    element:<Track/>
   }
 ])
   

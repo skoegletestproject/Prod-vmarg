@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Container, TextField, Button, Typography, Box, AppBar, Toolbar } from "@mui/material";
-import Layout from "./Layout/Layout";
+import Layout from "../Layout/Layout";
 
-export default function Login() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+export default function SignUp() {
+  const [formData, setFormData] = useState({ username: "", email: "", password: "", confirmPassword: "" });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -11,6 +11,11 @@ export default function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+    console.log("Username:", formData.username);
     console.log("Email:", formData.email);
     console.log("Password:", formData.password);
   };
@@ -18,12 +23,22 @@ export default function Login() {
   return (
 
     <Layout>    <Box>
-    
+ 
 
-      {/* Login Form */}
+      {/* SignUp Form */}
       <Container maxWidth="sm" sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "80vh" }}>
         <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", p: 3, boxShadow: 3, borderRadius: 2, bgcolor: "background.paper" }}>
-          <Typography variant="h5" mb={2} textAlign="center">Login</Typography>
+          <Typography variant="h5" mb={2} textAlign="center">Sign Up</Typography>
+          <TextField
+            fullWidth
+            label="Username"
+            type="text"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            margin="normal"
+            required
+          />
           <TextField
             fullWidth
             label="Email"
@@ -44,17 +59,25 @@ export default function Login() {
             margin="normal"
             required
           />
+          <TextField
+            fullWidth
+            label="Confirm Password"
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            margin="normal"
+            required
+          />
           <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, backgroundColor: "rgb(4,4,38)", color: "white" }}>
-            Login
+            Sign Up
           </Button>
-          <Typography variant="body2" textAlign="center" mt={2}>
-            Don’t have an account? <a href="/Signup" style={{ color: "blue", textDecoration: "none" }}>Sign Up</a>
-          </Typography>
         </Box>
       </Container>
 
-   
-    </Box></Layout>
+  
+    </Box>
+    </Layout>
 
   );
 }
