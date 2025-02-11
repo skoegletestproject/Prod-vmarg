@@ -66,7 +66,7 @@ export default function Track() {
       return;
     }
     try {
-      const response = await axios.get("http://localhost:12000/api/find/logs", {
+      const response = await axios.get("https://production-server-tygz.onrender.com/api/find/logs", {
         params: { deviceName: selectedDevice, fromDate, toDate, fromTime, toTime },
       });
 

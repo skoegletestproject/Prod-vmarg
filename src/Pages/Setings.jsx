@@ -105,14 +105,14 @@ export default function RegisterDevice() {
 
     try {
       const cleanedDeviceCode = deviceCode.replace(/\n/g, "");
-      await axios.post("http://localhost:12000/api/verify/adddevice", {
+      await axios.post("https://production-server-tygz.onrender.com/api/verify/adddevice", {
         deviceName,
         deviceCode: cleanedDeviceCode,
         custommerId,
         nickname,
       });
 
-      await axios.post("http://localhost:12000/api/realtime/logs", {
+      await axios.post("https://production-server-tygz.onrender.com/api/realtime/logs", {
         deviceName: deviceName,
         latitude: 37.7749,
         longitude: -122.4194,
