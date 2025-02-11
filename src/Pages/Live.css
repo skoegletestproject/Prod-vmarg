@@ -1,14 +1,23 @@
 .live-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 20px;
-    height: 100vh;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
   }
   
   .map-container {
-    flex: 1 1 60%;
-    min-height: 300px;
     position: relative;
+    width: 100%;
+    max-width: 800px;
+    height: 500px;
+    margin-bottom: 20px;
+    border: 2px solid #000; /* Added border */
+  }
+  
+  .map {
+    width: 100%;
+    height: 100%;
   }
   
   .device-selector {
@@ -20,65 +29,53 @@
     border-radius: 5px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     z-index: 1000;
-    max-height: 150px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-  }
-  
-  .device-selector select {
-    width: 100%;
-    max-height: 150px;
-    overflow-y: auto;
-    scrollbar-width: thin;
   }
   
   .device-info {
-    flex: 1 1 35%;
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-    padding-right: 10px;
-    scrollbar-width: thin;
+    width: 100%;
+    max-width: 300px;
+    margin-left: 20px;
   }
   
-  .device-card {
-    background-color: white;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .error-text {
+  .error-message {
     color: red;
   }
   
-  .not-found-text {
+  .device-details {
+    margin-bottom: 20px;
+  }
+  
+  .device-not-found {
     color: red;
   }
   
   .share-button {
-    background-color: #007bff;
-    color: white;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
     margin-top: 10px;
+    cursor: pointer;
   }
   
-  .share-button:hover {
-    background-color: #0056b3;
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .live-container {
+      flex-direction: column;
+      align-items: center;
+    }
+  
+    .map-container {
+      height: 400px;
+    }
+  
+    .device-info {
+      margin-left: 0;
+    }
   }
   
-  /* Add touch-friendly scrolling for mobile */
-  .device-selector::-webkit-scrollbar,
-  .device-info::-webkit-scrollbar {
-    width: 6px;
-  }
+  @media (min-width: 769px) and (max-width: 1024px) {
+    .map-container {
+      height: 450px;
+    }
   
-  .device-selector::-webkit-scrollbar-thumb,
-  .device-info::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
+    .device-info {
+      margin-left: 20px;
+    }
   }
-  

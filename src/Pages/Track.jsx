@@ -6,6 +6,7 @@ import Layout from "../Layout/Layout";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useStore } from "../Store/Store";
+import "./Track.css"; // Import the CSS file
 
 function getDefaultDate(offsetDays = 0) {
   const date = new Date();
@@ -101,23 +102,15 @@ export default function Track() {
 
   return (
     <Layout>
-      <div>
-        <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, p: 2, gap: 2 }}>
+      <div className="track-container">
+        <Box className="track-box">
           {/* Map Section */}
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
+          <Box className="map-section">
+            <Typography variant="h6" className="section-title">
               Device Location Map
             </Typography>
-            <Box
-              sx={{
-                height: "500px",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                overflow: "hidden",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-              }}
-            >
-              <MapContainer center={[20.5937, 78.9629]} zoom={5} style={{ width: "100%", height: "100%" }}>
+            <Box className="map-container">
+              <MapContainer center={[20.5937, 78.9629]} zoom={5} className="map">
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -139,8 +132,8 @@ export default function Track() {
           </Box>
 
           {/* Filter Section */}
-          <Box sx={{ width: { xs: "100%", md: "300px" } }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
+          <Box className="filter-section">
+            <Typography variant="h6" className="section-title">
               Filter Options
             </Typography>
             <TextField
@@ -149,7 +142,7 @@ export default function Track() {
               fullWidth
               value={selectedDevice}
               onChange={(e) => setSelectedDevice(e.target.value)}
-              sx={{ mb: 2 }}
+              className="input-field"
             >
               {deviceOptions.map((device) => (
                 <MenuItem key={device.value} value={device.value}>
@@ -158,48 +151,47 @@ export default function Track() {
               ))}
             </TextField>
 
-            <Typography variant="body1" sx={{ mb: 1 }}>
+            <Typography variant="body1" className="input-label">
               From Date:
             </Typography>
             <input
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              style={{ width: "100%", padding: "8px", marginBottom: "16px" }}
+              className="date-input"
             />
-            <Typography variant="body1" sx={{ mb: 1 }}>
+            <Typography variant="body1" className="input-label">
               To Date:
             </Typography>
             <input
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              style={{ width: "100%", padding: "8px", marginBottom: "16px" }}
+              className="date-input"
             />
-            <Typography variant="body1" sx={{ mb: 1 }}>
+            <Typography variant="body1" className="input-label">
               From Time:
             </Typography>
             <input
               type="time"
               value={fromTime}
               onChange={(e) => setFromTime(e.target.value)}
-              style={{ width: "100%", padding: "8px", marginBottom: "16px" }}
+              className="time-input"
             />
-            <Typography variant="body1" sx={{ mb: 1 }}>
+            <Typography variant="body1" className="input-label">
               To Time:
             </Typography>
             <input
               type="time"
               value={toTime}
               onChange={(e) => setToTime(e.target.value)}
-              style={{ width: "100%", padding: "8px", marginBottom: "16px" }}
+              className="time-input"
             />
 
-            <Button variant="contained" onClick={fetchLogs} sx={{ mb: 2 }}>
+            <Button variant="contained" onClick={fetchLogs} className="filter-button">
               Filter
             </Button>
-            <br />
-            <Button variant="contained" color="secondary" onClick={generateShareUrl} sx={{ mb: 2 }}>
+            <Button variant="contained" color="secondary" onClick={generateShareUrl} className="share-button">
               Share
             </Button>
           </Box>

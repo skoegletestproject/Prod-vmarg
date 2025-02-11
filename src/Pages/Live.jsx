@@ -5,7 +5,7 @@ import Layout from "../Layout/Layout";
 import { useStore } from "../Store/Store";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue } from "firebase/database";
-import "./Live.css"; // Add custom styles for better responsiveness
+import "./Live.css"; // Import the CSS file
 
 const firebaseConfig = {
   apiKey: "AIzaSyB3vFmUkVuYXeb5CgHKQVtPNq1CLu_fC1I",
@@ -41,7 +41,7 @@ export default function Live() {
             label: device.nickname || device.deviceName,
           }));
           setDeviceOptions(options);
-          setSelectedDevices([options[0].value]);
+          setSelectedDevices([options[0].value]); // Select the first device
         } else {
           setError("You don't have any registered devices. Please register a device.");
         }
@@ -55,30 +55,40 @@ export default function Live() {
 
   useEffect(() => {
     const listeners = [];
+
     const subscribeToDevice = (device) => {
       const gpsRef = ref(database, `${device}/Realtime`);
       const unsubscribe = onValue(gpsRef, (snapshot) => {
         const data = snapshot.val();
         if (data?.timestamp) {
           const [date, time, lat, lng] = data.timestamp.split(",");
+          const latitude = parseFloat(lat);
+          const longitude = parseFloat(lng);
+
           setDeviceData((prev) => ({
             ...prev,
             [device]: {
-              lat: parseFloat(lat),
-              lng: parseFloat(lng),
+              lat: latitude,
+              lng: longitude,
               lastUpdated: `${date} ${time}`,
               found: true,
             },
           }));
-          setMapCenter({ lat: parseFloat(lat), lng: parseFloat(lng) });
+          setMapCenter({ lat: latitude, lng: longitude });
         } else {
-          setDeviceData((prev) => ({ ...prev, [device]: { found: false } }));
+          setDeviceData((prev) => ({
+            ...prev,
+            [device]: { found: false },
+          }));
         }
       });
+
       listeners.push(unsubscribe);
     };
 
-    selectedDevices.forEach(subscribeToDevice);
+    if (selectedDevices.length > 0) {
+      selectedDevices.forEach(subscribeToDevice);
+    }
 
     return () => {
       listeners.forEach((unsubscribe) => unsubscribe());
@@ -88,7 +98,8 @@ export default function Live() {
   useEffect(() => {
     if (mapRef.current) {
       const { lat, lng } = mapCenter;
-      mapRef.current.setView([lat || defaultLatLng.lat, lng || defaultLatLng.lng], lat && lng ? 15 : 5);
+      const zoomLevel = lat && lng ? 15 : 5;
+      mapRef.current.setView([lat || defaultLatLng.lat, lng || defaultLatLng.lng], zoomLevel);
     }
   }, [mapCenter]);
 
@@ -112,7 +123,7 @@ export default function Live() {
           <MapContainer
             center={mapCenter}
             zoom={10}
-            style={{ width: "100%", height: "100%" }}
+            className="map"
             ref={mapRef}
           >
             <TileLayer
@@ -128,7 +139,7 @@ export default function Live() {
                     Latitude: {data.lat} <br />
                     Longitude: {data.lng} <br />
                     Last Updated: {data.lastUpdated} <br />
-                    <button className="share-button" onClick={() => handleShare(device)}>
+                    <button onClick={() => handleShare(device)} className="share-button">
                       Share Location
                     </button>
                   </Popup>
@@ -136,6 +147,7 @@ export default function Live() {
               ) : null;
             })}
           </MapContainer>
+
           <div className="device-selector">
             <select id="devices" multiple onChange={handleDeviceChange} value={selectedDevices}>
               {deviceOptions.map((device) => (
@@ -146,25 +158,25 @@ export default function Live() {
             </select>
           </div>
         </div>
+
         <div className="device-info">
           {error ? (
-            <p className="error-text">{error}</p>
+            <p className="error-message">{error}</p>
           ) : (
             selectedDevices.map((device) => (
-              <div key={device} className="device-card">
+              <div key={device} className="device-details">
                 <h3>{device}</h3>
                 {deviceData[device]?.found === false ? (
-                  <p className="not-found-text">Device not found. Latitude and Longitude not available.</p>
+                  <p className="device-not-found">Device not found. Latitude and Longitude not available.</p>
                 ) : (
                   <>
                     <p>Latitude: {deviceData[device]?.lat ?? "Loading..."}</p>
                     <p>Longitude: {deviceData[device]?.lng ?? "Loading..."}</p>
                     <p>Last Updated: {deviceData[device]?.lastUpdated ?? "Waiting for update..."}</p>
-                    <button className="share-button" onClick={() => handleShare(device)}>
-                      Share Location
-                    </button>
+                    <button onClick={() => handleShare(device)} className="share-button">Share Location</button>
                   </>
                 )}
+                <hr />
               </div>
             ))
           )}
