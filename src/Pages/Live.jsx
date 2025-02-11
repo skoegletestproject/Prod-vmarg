@@ -5,6 +5,10 @@ import Layout from "../Layout/Layout";
 import { useStore } from "../Store/Store";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue } from "firebase/database";
+import L from "leaflet";
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import "./Live.css"; // Import the CSS file
 
 const firebaseConfig = {
@@ -20,6 +24,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+
+const locationIcon = new L.Icon({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
 
 export default function Live() {
   const mapRef = useRef(null);
@@ -133,7 +147,7 @@ export default function Live() {
             {selectedDevices.map((device) => {
               const data = deviceData[device];
               return data?.found ? (
-                <Marker key={device} position={[data.lat, data.lng]}>
+                <Marker key={device} position={[data.lat, data.lng]} icon={locationIcon}>
                   <Popup>
                     <strong>{device}</strong> <br />
                     Latitude: {data.lat} <br />
