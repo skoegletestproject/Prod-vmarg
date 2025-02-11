@@ -38,7 +38,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Button component={Link} to="/" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Home</Button>
+              <Button component={Link} to="/" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Live</Button>
               <Button component={Link} to="/track" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Track</Button>
               <Button component={Link} to="/settings" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Add Device</Button>
               <Button component={Link} to="/login" onClick={LogotManage} variant="contained" sx={{ backgroundColor: "white", color: "rgb(4, 4, 38)", mr: 1 }}>Logout</Button>
@@ -59,7 +59,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <MenuItem component={Link} to="/" onClick={handleMenuClose}>Home</MenuItem>
+              <MenuItem component={Link} to="/" onClick={handleMenuClose}>Live</MenuItem>
               <MenuItem component={Link} to="/track" onClick={handleMenuClose}>Track</MenuItem>
               <MenuItem component={Link} to="/settings" onClick={handleMenuClose}>Add Device</MenuItem>
               <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>Profile</MenuItem>
