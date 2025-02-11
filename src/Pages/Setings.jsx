@@ -21,7 +21,6 @@ import Layout from "../Layout/Layout";
 import axios from "axios";
 import Webcam from "react-webcam";
 import jsQR from "jsqr";
-import { motion } from "framer-motion";
 
 export default function RegisterDevice() {
   const [deviceName, setDeviceName] = useState("");
@@ -163,6 +162,9 @@ export default function RegisterDevice() {
                   audio={false}
                   ref={webcamRef}
                   screenshotFormat="image/jpeg"
+                  videoConstraints={{
+                    facingMode: { ideal: "environment" },
+                  }}
                   style={{ width: "100%", borderRadius: 8 }}
                 />
                 <Button
