@@ -1,21 +1,72 @@
-
 import { useState } from "react";
-import { Container, TextField, Button, Typography, Box, AppBar, Toolbar } from "@mui/material";
+import { Button, Typography, Box, AppBar, Toolbar, IconButton, Menu, MenuItem } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import { Link } from "react-router-dom";
+import { useStore } from "../Store/Store";
 
-export default function Navbar(){
-    return(
-        <>
-           <AppBar position="static" sx={{ backgroundColor: "rgb(4,4,38)" }}>
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-          <Typography variant="h6">Skoegle</Typography>
-          <Box>
-            <Button variant="outlined" sx={{ color: "white", borderColor: "white", mr: 2 }}>Login</Button>
-            <Button variant="contained" sx={{ backgroundColor: "white", color: "rgb(4,4,38)" }}>Sign Up</Button>
+export default function Navbar() {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const { isAdmin, isLogin, setisLogin, logout } = useStore();
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  function LogotManage() {
+    localStorage.clear();
+    setisLogin(false);
+    logout();
+    console.clear();
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <AppBar position="static" sx={{ backgroundColor: "rgb(4, 4, 38)" }}>
+      <Toolbar sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <Typography variant="h6" sx={{ position: "absolute", left: 20 }}>Skoegle</Typography>
+        <Typography variant="h6" sx={{ textAlign: "center" }}>V-Marg</Typography>
+        <Box sx={{ position: "absolute", right: 20, display: { xs: "none", md: "block" } }}>
+          {isLogin && !isAdmin && <Button component={Link} to="/profile" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Profile</Button>}
+          {isAdmin && isLogin && <Button component={Link} to="/admin" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Admin</Button>}
+          {!isLogin ? (
+            <>
+              <Button component={Link} to="/login" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Login</Button>
+              <Button component={Link} to="/signup" variant="contained" sx={{ backgroundColor: "white", color: "rgb(4, 4, 38)", mr: 1 }}>Sign Up</Button>
+            </>
+          ) : (
+            <>
+              <Button component={Link} to="/" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Home</Button>
+              {/* <Button component={Link} to="/" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Live</Button> */}
+              <Button component={Link} to="/track" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Track</Button>
+              <Button component={Link} to="/settings" variant="outlined" sx={{ color: "white", borderColor: "white", mr: 1 }}>Add Device</Button>
+              <Button component={Link} to="/login" onClick={LogotManage} variant="contained" sx={{ backgroundColor: "white", color: "rgb(4, 4, 38)", mr: 1 }}>Logout</Button>
             
-          </Box>
-        </Toolbar>
-      </AppBar>
-        
-        </>
-    )
+            </>
+          )}
+        </Box>
+        <IconButton
+          sx={{ display: { xs: "block", md: "none" }, color: "white", position: "absolute", right: 20 }}
+          onClick={handleMenuOpen}
+        >
+          <MenuIcon />
+        </IconButton>
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+          {!isLogin ? (
+            <>
+              <MenuItem component={Link} to="/login" onClick={handleMenuClose}>Login</MenuItem>
+              <MenuItem component={Link} to="/signup" onClick={handleMenuClose}>Sign Up</MenuItem>
+            </>
+          ) : (
+            <>
+              <MenuItem component={Link} to="/login" onClick={() => { LogotManage(); handleMenuClose(); }}>Logout</MenuItem>
+              <MenuItem component={Link} to="/" onClick={handleMenuClose}>Home</MenuItem>
+            </>
+          )}
+        </Menu>
+      </Toolbar>
+    </AppBar>
+  );
 }

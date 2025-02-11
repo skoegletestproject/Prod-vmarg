@@ -2,51 +2,96 @@ import React, { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import Layout from "../Layout/Layout";
+import { useStore } from "../Store/Store";
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, onValue } from "firebase/database";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB3vFmUkVuYXeb5CgHKQVtPNq1CLu_fC1I",
+  authDomain: "skoegle.firebaseapp.com",
+  databaseURL: "https://skoegle-default-rtdb.firebaseio.com",
+  projectId: "skoegle",
+  storageBucket: "skoegle.appspot.com",
+  messagingSenderId: "850483861138",
+  appId: "1:850483861138:web:7db6db38eb81eb3dde384b",
+  measurementId: "G-9SB0PX663B",
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 export default function Live() {
   const mapRef = useRef(null);
-  const [selectedDevices, setSelectedDevices] = useState(["Tracker-001"]);
+  const [selectedDevices, setSelectedDevices] = useState([]);
   const [deviceData, setDeviceData] = useState({});
   const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 });
-
-  const deviceOptions = [
-    { value: "Tracker-001", label: "Tracker 001" },
-    { value: "Tracker-002", label: "Tracker 002" },
-    { value: "Tracker-003", label: "Tracker 003" },
-  ];
-
+  const [deviceOptions, setDeviceOptions] = useState([]);
+  const [error, setError] = useState(null);
+  const { GetRegisterdDevices } = useStore();
   const defaultLatLng = { lat: 20.5937, lng: 78.9629 };
 
   useEffect(() => {
-    const fetchDeviceData = async () => {
-      selectedDevices.forEach(async (device) => {
-        try {
-          const response = await fetch(`http://localhost:5000/realtime/${device}`);
-          if (!response.ok) throw new Error("Network response was not ok");
-          const data = await response.json();
+    const fetchDevices = async () => {
+      try {
+        const response = await GetRegisterdDevices();
+        if (response?.devices?.length > 0) {
+          const options = response.devices.map((device) => ({
+            value: device.deviceName,
+            label: device.nickname || device.deviceName,
+          }));
+          setDeviceOptions(options);
+          setSelectedDevices([options[0].value]); // Select the first device
+        } else {
+          setError("You don't have any registered devices. Please register a device.");
+        }
+      } catch (error) {
+        console.error("Error fetching registered devices:", error);
+        setError("Failed to fetch registered devices.");
+      }
+    };
+    fetchDevices();
+  }, [GetRegisterdDevices]);
+
+  useEffect(() => {
+    const listeners = [];
+
+    const subscribeToDevice = (device) => {
+      const gpsRef = ref(database, `${device}/Realtime`);
+      const unsubscribe = onValue(gpsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data?.timestamp) {
+          const [date, time, lat, lng] = data.timestamp.split(",");
+          const latitude = parseFloat(lat);
+          const longitude = parseFloat(lng);
+
           setDeviceData((prev) => ({
             ...prev,
             [device]: {
-              lat: data.latitude,
-              lng: data.longitude,
-              lastUpdated: `${data.date} ${data.time}`,
+              lat: latitude,
+              lng: longitude,
+              lastUpdated: `${date} ${time}`,
               found: true,
             },
           }));
-          setMapCenter({ lat: data.latitude, lng: data.longitude });
-        } catch (error) {
-          console.error("Error fetching device data:", error);
+          setMapCenter({ lat: latitude, lng: longitude });
+        } else {
           setDeviceData((prev) => ({
             ...prev,
             [device]: { found: false },
           }));
         }
       });
+
+      listeners.push(unsubscribe);
     };
 
-    fetchDeviceData();
-    const interval = setInterval(fetchDeviceData, 5000);
-    return () => clearInterval(interval);
+    if (selectedDevices.length > 0) {
+      selectedDevices.forEach(subscribeToDevice);
+    }
+
+    return () => {
+      listeners.forEach((unsubscribe) => unsubscribe());
+    };
   }, [selectedDevices]);
 
   useEffect(() => {
@@ -66,7 +111,7 @@ export default function Live() {
     const data = deviceData[device];
     if (data?.found) {
       const googleMapsLink = `https://www.google.com/maps/place/${data.lat},${data.lng}`;
-      window.open(googleMapsLink, "_blank");  // Open the Google Maps link in a new tab
+      window.open(googleMapsLink, "_blank");
     }
   };
 
@@ -114,7 +159,7 @@ export default function Live() {
               zIndex: 1000,
             }}
           >
-            <select id="devices" multiple onChange={handleDeviceChange}>
+            <select id="devices" multiple onChange={handleDeviceChange} value={selectedDevices}>
               {deviceOptions.map((device) => (
                 <option key={device.value} value={device.value}>
                   {device.label}
@@ -125,22 +170,26 @@ export default function Live() {
         </div>
 
         <div style={{ marginLeft: "20px", width: "300px" }}>
-          {selectedDevices.map((device) => (
-            <div key={device}>
-              <h3>{device}</h3>
-              {deviceData[device]?.found === false ? (
-                <p style={{ color: "red" }}>Device not found. Latitude and Longitude not available.</p>
-              ) : (
-                <>
-                  <p>Latitude: {deviceData[device]?.lat ?? "Loading..."}</p>
-                  <p>Longitude: {deviceData[device]?.lng ?? "Loading..."}</p>
-                  <p>Last Updated: {deviceData[device]?.lastUpdated ?? "Waiting for update..."}</p>
-                  <button onClick={() => handleShare(device)}>Share Location</button>
-                </>
-              )}
-              <hr />
-            </div>
-          ))}
+          {error ? (
+            <p style={{ color: "red" }}>{error}</p>
+          ) : (
+            selectedDevices.map((device) => (
+              <div key={device}>
+                <h3>{device}</h3>
+                {deviceData[device]?.found === false ? (
+                  <p style={{ color: "red" }}>Device not found. Latitude and Longitude not available.</p>
+                ) : (
+                  <>
+                    <p>Latitude: {deviceData[device]?.lat ?? "Loading..."}</p>
+                    <p>Longitude: {deviceData[device]?.lng ?? "Loading..."}</p>
+                    <p>Last Updated: {deviceData[device]?.lastUpdated ?? "Waiting for update..."}</p>
+                    <button onClick={() => handleShare(device)}>Share Location</button>
+                  </>
+                )}
+                <hr />
+              </div>
+            ))
+          )}
         </div>
       </div>
     </Layout>

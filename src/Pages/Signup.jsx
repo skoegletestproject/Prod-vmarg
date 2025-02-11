@@ -1,83 +1,180 @@
 import { useState } from "react";
-import { Container, TextField, Button, Typography, Box, AppBar, Toolbar } from "@mui/material";
+import { 
+  Container, TextField, Button, Typography, Box, CircularProgress 
+} from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { useStore } from "../Store/Store"; // Assuming your store is correctly set up
 import Layout from "../Layout/Layout";
+import { toast } from "react-toastify";
 
 export default function SignUp() {
-  const [formData, setFormData] = useState({ username: "", email: "", password: "", confirmPassword: "" });
+  const { signup } = useStore();
+  const navigate = useNavigate();
+  
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phoneNumber: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const validate = () => {
+    let tempErrors = {};
+    if (!formData.firstName) tempErrors.firstName = 'First name is required';
+    if (!formData.lastName) tempErrors.lastName = 'Last name is required';
+    if (!formData.email) tempErrors.email = 'Email is required';
+    if (!formData.phoneNumber) tempErrors.phoneNumber = 'Phone number is required';
+    if (!formData.password) tempErrors.password = 'Password is required';
+    if (!formData.confirmPassword) tempErrors.confirmPassword = 'Confirm password is required';
+    else if (formData.password !== formData.confirmPassword) tempErrors.confirmPassword = 'Passwords do not match';
+
+    setErrors(tempErrors);
+    return Object.keys(tempErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
-      return;
+    if (validate()) {
+      setLoading(true);
+      try {
+        const response = await signup(formData);
+
+        if (response?.valid) {
+          toast.success(`User registered successfully with Email: ${response.message}`);
+          setTimeout(() => navigate('/login'), 2000);
+        }
+      } catch (error) {
+        toast.error('Signup failed. Please try again.');
+      } finally {
+        setLoading(false);
+      }
     }
-    console.log("Username:", formData.username);
-    console.log("Email:", formData.email);
-    console.log("Password:", formData.password);
   };
 
   return (
+    <Layout>
+      <Box 
+        sx={{ 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
+          height: "100vh" 
+        }}
+      >
+        <Container maxWidth="sm">
+          <Box 
+            component="form" 
+            onSubmit={handleSubmit} 
+            sx={{ 
+              width: "100%", 
+              p: 4, 
+              boxShadow: 3, 
+              borderRadius: 2, 
+              bgcolor: "background.paper",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2 
+            }}
+          >
+            <Typography variant="h5" mb={1} textAlign="center">Sign Up</Typography>
 
-    <Layout>    <Box>
- 
+            <TextField
+              fullWidth
+              label="First Name"
+              type="text"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              error={!!errors.firstName}
+              helperText={errors.firstName}
+              required
+            />
+            <TextField
+              fullWidth
+              label="Last Name"
+              type="text"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              error={!!errors.lastName}
+              helperText={errors.lastName}
+              required
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              error={!!errors.email}
+              helperText={errors.email}
+              required
+            />
+            <TextField
+              fullWidth
+              label="Phone Number"
+              type="text"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              error={!!errors.phoneNumber}
+              helperText={errors.phoneNumber}
+              required
+            />
+            <TextField
+              fullWidth
+              label="Password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              error={!!errors.password}
+              helperText={errors.password}
+              required
+            />
+            <TextField
+              fullWidth
+              label="Confirm Password"
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              error={!!errors.confirmPassword}
+              helperText={errors.confirmPassword}
+              required
+            />
 
-      {/* SignUp Form */}
-      <Container maxWidth="sm" sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "80vh" }}>
-        <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", p: 3, boxShadow: 3, borderRadius: 2, bgcolor: "background.paper" }}>
-          <Typography variant="h5" mb={2} textAlign="center">Sign Up</Typography>
-          <TextField
-            fullWidth
-            label="Username"
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
-            label="Email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
-            label="Password"
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-          <TextField
-            fullWidth
-            label="Confirm Password"
-            type="password"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 2, backgroundColor: "rgb(4,4,38)", color: "white" }}>
-            Sign Up
-          </Button>
-        </Box>
-      </Container>
-
-  
-    </Box>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              type="submit"
+              disabled={loading}
+              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+              sx={{
+                padding: '12px',
+                fontSize: '16px',
+                backgroundColor: '#00796b',
+                '&:hover': { backgroundColor: 'rgb(4,4,38)' },
+                marginTop: 1,
+              }}
+            >
+              {loading ? 'Submitting...' : 'Sign Up'}
+            </Button>
+          </Box>
+        </Container>
+      </Box>
     </Layout>
-
   );
 }
