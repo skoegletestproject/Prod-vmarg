@@ -62,7 +62,7 @@ export default function Navbar() {
               <MenuItem component={Link} to="/" onClick={handleMenuClose}>Live</MenuItem>
               <MenuItem component={Link} to="/track" onClick={handleMenuClose}>Track</MenuItem>
               <MenuItem component={Link} to="/settings" onClick={handleMenuClose}>Add Device</MenuItem>
-             {isAdmin && isLogin && <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>Profile</MenuItem>}
+             {isLogin && !isAdmin && <MenuItem component={Link} to="/profile" onClick={handleMenuClose}>Profile</MenuItem>}
               {isAdmin && <MenuItem component={Link} to="/admin" onClick={handleMenuClose}>Admin</MenuItem>}
               <MenuItem component={Link} to="/login" onClick={() => { LogotManage(); handleMenuClose(); }}>Logout</MenuItem>
             </>
