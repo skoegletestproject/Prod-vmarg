@@ -68,7 +68,8 @@ export default function SignUp() {
           display: "flex", 
           justifyContent: "center", 
           alignItems: "center", 
-          height: "100vh" 
+          height: "100vh", 
+          padding: 2,
         }}
       >
         <Container maxWidth="sm">
@@ -83,7 +84,12 @@ export default function SignUp() {
               bgcolor: "background.paper",
               display: "flex",
               flexDirection: "column",
-              gap: 2 
+              gap: 2,
+              '@media (max-width: 600px)': {
+                p: 2,
+                gap: 1.0,
+                marginLeft: -2,
+              },
             }}
           >
             <Typography variant="h5" mb={1} textAlign="center">Sign Up</Typography>
@@ -172,6 +178,9 @@ export default function SignUp() {
             >
               {loading ? 'Submitting...' : 'Sign Up'}
             </Button>
+            <Typography variant="body2" textAlign="center" mt={1}>
+              Do you have an account? <a href="/login" style={{ color: "blue", textDecoration: "none" }}>Login</a>
+            </Typography>
           </Box>
         </Container>
       </Box>

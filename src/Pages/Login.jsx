@@ -104,6 +104,7 @@ export default function Login() {
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
+          padding: 2,
         }}
       >
         <Container maxWidth="sm">
@@ -112,13 +113,18 @@ export default function Login() {
             onSubmit={handleSubmit}
             sx={{
               width: "100%",
-              p: 4,
+              p: 3,
               boxShadow: 3,
               borderRadius: 2,
               bgcolor: "background.paper",
               display: "flex",
               flexDirection: "column",
               gap: 2,
+              '@media (max-width: 600px)': {
+                p: 1,
+                gap: 1.5,
+                marginLeft: -2,
+              },
             }}
           >
             <Typography variant="h5" textAlign="center">Login</Typography>
