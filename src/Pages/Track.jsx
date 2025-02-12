@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { initializeApp } from "firebase/app";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { firebaseConfig } from "./Firebase";
-import Layout from "../Layout/Layout"
+import Layout from "../Layout/Layout";
 import {
   AppBar,
   Toolbar,
@@ -20,6 +20,7 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { useStore } from "../Store/Store";
 
 // 🔹 Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -30,9 +31,10 @@ const LiveGPSTracker = () => {
   const polylineRefs = useRef({});
   const markerRefs = useRef({});
   const [logsData, setLogsData] = useState({});
-  const [selectedDevice, setSelectedDevice] = useState("Device-1");
+  const [selectedDevice, setSelectedDevice] = useState("");
   const [snackbarMessage, setSnackbarMessage] = useState("");
-
+  const { GetRegisterdDevices } = useStore();
+  const [devices, setDevices] = useState([]);
   // 🔹 Set default lat/lng values to avoid "undefined" errors
   const [latitudelive, setLatitude] = useState(13.003207);
   const [longitudelive, setLongitude] = useState(77.578762);
@@ -67,6 +69,16 @@ const LiveGPSTracker = () => {
 
   // 🔹 Initialize Map when lat/lng are available
   useEffect(() => {
+    const fetchDevices = async () => {
+      const devicesData = await GetRegisterdDevices();
+      setDevices(devicesData.devices);
+      if (devicesData.devices.length > 0) {
+        setSelectedDevice(devicesData.devices[0].deviceName);
+      }
+    };
+
+    fetchDevices();
+
     if (!mapRef.current) {
       mapRef.current = L.map("map", { zoomControl: false }).setView(
         [latitudelive, longitudelive],
@@ -83,7 +95,9 @@ const LiveGPSTracker = () => {
   }, [latitudelive, longitudelive]);
 
   useEffect(() => {
-    fetchLogs();
+    if (selectedDevice) {
+      fetchLogs();
+    }
   }, [selectedDevice, startDate, endDate]);
 
   // 🔹 Fetch Historical Logs
@@ -103,7 +117,7 @@ const LiveGPSTracker = () => {
             setLogsData({ [selectedDevice]: organizedData });
             filterLogs({ [selectedDevice]: organizedData });
           } else {
-            console.log("No logs available for", deviceRef.toString());
+            // console.log("No logs available for", deviceRef.toString());
             setLogsData({ [selectedDevice]: [] });
             filterLogs({ [selectedDevice]: [] });
           }
@@ -136,9 +150,9 @@ const LiveGPSTracker = () => {
       return acc;
     }, {});
 
-    if (Object.keys(filteredData).every(device => filteredData[device].length === 0)) {
-      setSnackbarMessage("No logs found for the selected date range.");
-    }
+    // if (Object.keys(filteredData).every(device => filteredData[device].length === 0)) {
+    //   setSnackbarMessage("No logs found for the selected date range.");
+    // }
 
     // Clear existing polylines and markers
     Object.keys(polylineRefs.current).forEach(device => {
@@ -245,16 +259,14 @@ const LiveGPSTracker = () => {
   };
 
   return (
-<Layout>     <AppBar position="static" >
-     
-      </AppBar>
+    <Layout>
+    <br/>
       <Container maxWidth="xl" style={{ height: "calc(100vh - 64px)" }}>
         <Grid container spacing={3} style={{ height: "100%" }}>
           <Grid item xs={12} md={8} lg={9} style={{ height: "100%" }}>
             <div id="map" style={{ height: "90%" }}></div>
           </Grid>
-
-          <Grid item xs={12} md={4} lg={3}>
+          <Grid item xs={12} md={4} lg={3} style={{ height: "calc(100vh - 64px)", overflowY: "auto" }}>
             <div style={{ padding: "10px", backgroundColor: "#f4f4f4", borderLeft: "1px solid #ccc" }}>
               {errorMessage && <Typography color="error">{errorMessage}</Typography>}
               <Snackbar
@@ -268,11 +280,10 @@ const LiveGPSTracker = () => {
                   </IconButton>
                 }
               />
-
               <div className="date-control" style={{ marginTop: "20px" }}>
-                  <Button variant="contained" color="primary" onClick={handleViewOnGMaps} fullWidth>
-                    View on Google Maps
-                  </Button>
+                <Button variant="contained" color="primary" onClick={handleViewOnGMaps} fullWidth>
+                  View on Google Maps
+                </Button>
                 <TextField
                   label="Start Date"
                   type="date"
@@ -302,17 +313,25 @@ const LiveGPSTracker = () => {
                   value={selectedDevice}
                   onChange={handleDeviceChange}
                 >
-                  <FormControlLabel value="Device-1" control={<Radio />} label="Device-1" />
-                  <FormControlLabel value="Device-2" control={<Radio />} label="Device-2" />
-                  <FormControlLabel value="Device-3" control={<Radio />} label="Device-3" />
+                  {devices.length > 0 ? (
+                    devices.map((device) => (
+                      <FormControlLabel
+                        key={device.deviceCode}
+                        value={device.deviceName}
+                        control={<Radio />}
+                        label={device.nickname || device.deviceName}
+                      />
+                    ))
+                  ) : (
+                    <Typography color="error">No devices available. Please register a device.</Typography>
+                  )}
                 </RadioGroup>
               </div>
             </div>
           </Grid>
         </Grid>
       </Container>
-      </Layout>
- 
+    </Layout>
   );
 };
 

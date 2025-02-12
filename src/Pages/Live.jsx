@@ -10,17 +10,7 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import "./Live.css"; // Import the CSS file
-
-const firebaseConfig = {
-  apiKey: "AIzaSyB3vFmUkVuYXeb5CgHKQVtPNq1CLu_fC1I",
-  authDomain: "skoegle.firebaseapp.com",
-  databaseURL: "https://skoegle-default-rtdb.firebaseio.com",
-  projectId: "skoegle",
-  storageBucket: "skoegle.appspot.com",
-  messagingSenderId: "850483861138",
-  appId: "1:850483861138:web:7db6db38eb81eb3dde384b",
-  measurementId: "G-9SB0PX663B",
-};
+import { firebaseConfig } from "./Firebase";
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
@@ -43,6 +33,7 @@ export default function Live() {
   const [deviceOptions, setDeviceOptions] = useState([]);
   const [error, setError] = useState(null);
   const { GetRegisterdDevices } = useStore();
+  const [neckname, setNeckname] = useState("");
   const defaultLatLng = { lat: 20.5937, lng: 78.9629 };
 
   useEffect(() => {
@@ -149,7 +140,7 @@ export default function Live() {
               return data?.found ? (
                 <Marker key={device} position={[data.lat, data.lng]} icon={locationIcon}>
                   <Popup>
-                    <strong>{device}</strong> <br />
+                    <strong>{deviceOptions.find(option => option.value === device)?.label}</strong> <br />
                     Latitude: {data.lat} <br />
                     Longitude: {data.lng} <br />
                     Last Updated: {data.lastUpdated} <br />
@@ -179,7 +170,7 @@ export default function Live() {
           ) : (
             selectedDevices.map((device) => (
               <div key={device} className="device-details">
-                <h3>{device}</h3>
+                <h3>{deviceOptions.find(option => option.value === device)?.label}</h3>
                 {deviceData[device]?.found === false ? (
                   <p className="device-not-found">Device not found. Latitude and Longitude not available.</p>
                 ) : (
@@ -187,7 +178,7 @@ export default function Live() {
                     <p>Latitude: {deviceData[device]?.lat ?? "Loading..."}</p>
                     <p>Longitude: {deviceData[device]?.lng ?? "Loading..."}</p>
                     <p>Last Updated: {deviceData[device]?.lastUpdated ?? "Waiting for update..."}</p>
-                    <button onClick={() => handleShare(device)} className="share-button">Share Location</button>
+                    <button onClick={() => handleShare(device)} className="share-button"> View on Google Maps</button>
                   </>
                 )}
                 <hr />
