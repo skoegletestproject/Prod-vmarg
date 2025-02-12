@@ -21,6 +21,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useStore } from "../Store/Store";
+import { useMediaQuery } from '@mui/material';
 
 // 🔹 Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -258,13 +259,16 @@ const LiveGPSTracker = () => {
     }
   };
 
+  // Media Query for responsive design
+  const isMobile = useMediaQuery('(max-width:600px)');
+
   return (
     <Layout>
     <br/>
       <Container maxWidth="xl" style={{ height: "calc(100vh - 64px)" }}>
         <Grid container spacing={3} style={{ height: "100%" }}>
-          <Grid item xs={12} md={8} lg={9} style={{ height: "100%" }}>
-            <div id="map" style={{ height: "90%" }}></div>
+          <Grid item xs={12} md={8} lg={9} style={{ height: isMobile ? "50%" : "100%" }}>
+            <div id="map" style={{ height: "90%", border: "2px solid black", borderRadius: "10px" }}></div>
           </Grid>
           <Grid item xs={12} md={4} lg={3} style={{ height: "calc(100vh - 64px)", overflowY: "auto" }}>
             <div style={{ padding: "10px", backgroundColor: "#f4f4f4", borderLeft: "1px solid #ccc" }}>
