@@ -116,8 +116,9 @@ export default function Profile() {
 
   return (
     <Layout>
-      <Container maxWidth="lg">
-        <Paper elevation={3} sx={{ padding: 4, borderRadius: "12px" }}>
+   
+      <Container maxWidth="lg" >
+        <Paper elevation={3} sx={{ padding: 4, borderRadius: "12px",marginTop: 8 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} md={4} container direction="column" alignItems="center">
               <Avatar

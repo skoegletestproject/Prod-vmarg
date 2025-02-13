@@ -105,3 +105,21 @@ export const GetRegisterdDevices = async () => {
     throw error;
   }
 }
+
+
+
+export const deleteRegesteredDevice = async (device) => {
+
+  console.log
+  try {
+      const response = await axios.delete(`${BASE_URL}/api/dmarg/device/delete?token=${localStorage.getItem("token")}`,{
+     data :{
+      deviceName:device
+     }
+      });
+      console.log(response.data);
+      return response.data;
+  } catch (error) {
+      console.error('Error deleting device:', error);
+  }
+}

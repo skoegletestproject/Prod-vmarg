@@ -16,7 +16,7 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Layout from "../Layout/Layout";
 import axios from "axios";
 import Webcam from "react-webcam";
@@ -35,6 +35,7 @@ export default function RegisterDevice() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("info");
   const webcamRef = useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     handleOpenCamera();
@@ -45,54 +46,52 @@ export default function RegisterDevice() {
     const videoDevices = devices.filter((device) => device.kind === "videoinput");
     if (videoDevices.length > 0) {
       setOpenCamera(true);
+      scanBarcode();
     }
   };
 
-  const handleScanBarcode = async () => {
-    setScanning(true);
-    const imageSrc = webcamRef.current.getScreenshot();
-    if (imageSrc) {
-      const image = await fetch(imageSrc)
-        .then((res) => res.blob())
-        .then((blob) => createImageBitmap(blob));
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-      canvas.width = image.width;
-      canvas.height = image.height;
-      context.drawImage(image, 0, 0, image.width, image.height);
+  const scanBarcode = useCallback(() => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      if (imageSrc && canvasRef.current) {
+        const image = new Image();
+        image.src = imageSrc;
+        image.onload = () => {
+          const canvas = canvasRef.current;
+          const context = canvas.getContext("2d");
+          canvas.width = image.width;
+          canvas.height = image.height;
+          context.drawImage(image, 0, 0, image.width, image.height);
 
-      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-      const code = jsQR(imageData.data, imageData.width, imageData.height);
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-      setScanning(false);
-
-      if (code) {
-        try {
-          const [scannedDeviceName, scannedDeviceCode] = code.data.split(",");
-          setDeviceName(scannedDeviceName);
-          setDeviceCode(scannedDeviceCode.trim());
-          setOpenCamera(false);
-          setOpenNicknameDialog(true);
-          setSnackbarMessage("Barcode scanned successfully!");
-          setSnackbarSeverity("success");
-          setShowSnackbar(true);
-        } catch {
-          setSnackbarMessage("Failed to parse the barcode.");
-          setSnackbarSeverity("error");
-          setShowSnackbar(true);
-        }
+          if (code) {
+            try {
+              const [scannedDeviceName, scannedDeviceCode] = code.data.split(",");
+              setDeviceName(scannedDeviceName);
+              setDeviceCode(scannedDeviceCode.trim());
+              setOpenCamera(false);
+              setOpenNicknameDialog(true);
+              setSnackbarMessage("Barcode scanned successfully!");
+              setSnackbarSeverity("success");
+              setShowSnackbar(true);
+            } catch {
+              setSnackbarMessage("Failed to parse the barcode.");
+              setSnackbarSeverity("error");
+              setShowSnackbar(true);
+            }
+          } else {
+            requestAnimationFrame(scanBarcode);
+          }
+        };
       } else {
-        setSnackbarMessage("No barcode detected. Please try again.");
-        setSnackbarSeverity("warning");
-        setShowSnackbar(true);
+        requestAnimationFrame(scanBarcode);
       }
     } else {
-      setSnackbarMessage("Failed to capture an image. Please try again.");
-      setSnackbarSeverity("error");
-      setShowSnackbar(true);
+      requestAnimationFrame(scanBarcode);
     }
-    setScanning(false);
-  };
+  }, []);
 
   const handleNicknameSubmit = async () => {
     if (!nickname) {
@@ -139,6 +138,7 @@ export default function RegisterDevice() {
   const handleDialogClose = () => {
     setOpenNicknameDialog(false);
     setOpenCamera(true);
+    scanBarcode();
   };
 
   const handleSnackbarClose = () => {
@@ -167,15 +167,8 @@ export default function RegisterDevice() {
                   }}
                   style={{ width: "100%", borderRadius: 8 }}
                 />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleScanBarcode}
-                  sx={{ mt: 2 }}
-                  disabled={scanning}
-                >
-                  {scanning ? <CircularProgress size={24} /> : "Scan Barcode"}
-                </Button>
+                <canvas ref={canvasRef} style={{ display: "none" }} />
+                {scanning && <CircularProgress size={24} />}
               </Box>
             )}
           </CardContent>

@@ -32,8 +32,8 @@ export default function Live() {
   const [mapCenter, setMapCenter] = useState({ lat: 0, lng: 0 });
   const [deviceOptions, setDeviceOptions] = useState([]);
   const [error, setError] = useState(null);
-  const { GetRegisterdDevices } = useStore();
-  const [neckname, setNeckname] = useState("");
+  const { GetRegisterdDevices, deleteRegesteredDevice } = useStore();
+  const [nickname, setNickname] = useState("");
   const defaultLatLng = { lat: 20.5937, lng: 78.9629 };
 
   useEffect(() => {
@@ -121,6 +121,17 @@ export default function Live() {
     }
   };
 
+  const handleDelete = async (device) => {
+    try {
+      await deleteRegesteredDevice(device);
+      setDeviceOptions((prev) => prev.filter((d) => d.value !== device));
+      setSelectedDevices((prev) => prev.filter((d) => d !== device));
+    } catch (error) {
+      console.error("Error deleting device:", error);
+      setError("Failed to delete device.");
+    }
+  };
+
   return (
     <Layout>
       <div className="live-container">
@@ -146,6 +157,9 @@ export default function Live() {
                     Last Updated: {data.lastUpdated} <br />
                     <button onClick={() => handleShare(device)} className="share-button">
                       Share Location
+                    </button>
+                    <button onClick={() => handleDelete(device)} className="delete-button">
+                      Delete Device
                     </button>
                   </Popup>
                 </Marker>
@@ -179,6 +193,7 @@ export default function Live() {
                     <p>Longitude: {deviceData[device]?.lng ?? "Loading..."}</p>
                     <p>Last Updated: {deviceData[device]?.lastUpdated ?? "Waiting for update..."}</p>
                     <button onClick={() => handleShare(device)} className="share-button"> View on Google Maps</button>
+                    <button onClick={() => handleDelete(device)} className="delete-button"> Delete Device</button>
                   </>
                 )}
                 <hr />
