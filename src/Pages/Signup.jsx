@@ -62,7 +62,7 @@ export default function SignUp() {
   };
 
   return (
-    <Layout>
+    <Layout title={"Vmarg - Sign Up"}>
       <Box 
         sx={{ 
           display: "flex", 

@@ -321,7 +321,7 @@ export default function Admin() {
   );
 
   return (
-    <Layout>
+    <Layout title={"Admin"}>
     <Box sx={{ padding: 4 }}>
       <Tabs value={swapsession} onChange={handleSessionChange} centered>
         <Tab label="Devices" value="devices" />

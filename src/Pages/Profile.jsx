@@ -115,7 +115,7 @@ export default function Profile() {
   }
 
   return (
-    <Layout>
+    <Layout title="Vmarg - Profile">
    
       <Container maxWidth="lg" >
         <Paper elevation={3} sx={{ padding: 4, borderRadius: "12px",marginTop: 8 }}>

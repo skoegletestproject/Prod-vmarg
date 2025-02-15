@@ -146,7 +146,7 @@ export default function RegisterDevice() {
   };
 
   return (
-    <Layout>
+    <Layout title={"Vmarg - Register Device"}>
       <Container maxWidth="sm" sx={{ mt: 4 }}>
         <Card sx={{ borderRadius: 3, boxShadow: 4 }}>
           <CardContent>

@@ -133,7 +133,7 @@ export default function Live() {
   };
 
   return (
-    <Layout>
+    <Layout title={"Vmarg - Live"}>
       <div className="live-container">
         <div className="map-container">
           <MapContainer

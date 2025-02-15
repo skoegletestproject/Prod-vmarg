@@ -97,7 +97,7 @@ export default function Login() {
   };
 
   return (
-    <Layout>
+    <Layout title="Vmarg - Login">
       <Box
         sx={{
           display: "flex",

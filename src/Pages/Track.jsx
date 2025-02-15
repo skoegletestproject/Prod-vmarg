@@ -263,7 +263,7 @@ const LiveGPSTracker = () => {
   const isMobile = useMediaQuery('(max-width:600px)');
 
   return (
-    <Layout>
+    <Layout title="Live GPS Tracker">
     <br/>
       <Container maxWidth="xl" style={{ height: "calc(100vh - 64px)" }}>
         <Grid container spacing={3} style={{ height: "100%" }}>
@@ -285,9 +285,9 @@ const LiveGPSTracker = () => {
                 }
               />
               <div className="date-control" style={{ marginTop: "20px" }}>
-                <Button variant="contained" color="primary" onClick={handleViewOnGMaps} fullWidth>
+                {/* <Button variant="contained" color="primary" onClick={handleViewOnGMaps} fullWidth>
                   View on Google Maps
-                </Button>
+                </Button> */}
                 <TextField
                   label="Start Date"
                   type="date"
