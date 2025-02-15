@@ -46,8 +46,8 @@ const LiveGPSTracker = () => {
     const yesterday = new Date(today);
     const twoDaysAgo = new Date(today);
 
-    yesterday.setDate(today.getDate() - 1);
-    twoDaysAgo.setDate(today.getDate() - 2);
+    yesterday.setDate(today.getDate() );
+    twoDaysAgo.setDate(today.getDate() - 1);
 
     const formatDate = (date) => {
       const year = date.getFullYear();
