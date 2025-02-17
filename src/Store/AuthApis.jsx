@@ -56,8 +56,8 @@ export const logout = async () => {
     const response = await axios.get(`${BASE_URL}/user/logout?token=${localStorage.getItem("token")}`,{
       withCredentials:true
     });
-    return response.data;
     localStorage.clear()
+    return response.data;
   } catch (error) {
     console.error('Error during logout:', error.response?.data || error.message);
     throw error;
