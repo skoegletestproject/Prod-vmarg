@@ -37,7 +37,10 @@ export const login = async (credentials) => {
 
 export const verifyUser = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}/user/verif?token=${localStorage?.getItem("token")}`,{
+    const response = await axios.get(`${BASE_URL}/user/verif`,{
+      headers: {
+        'Authorization': `Bearer ${localStorage?.getItem("token")}`
+    },
       withCredentials:true
     });
     return response.data;
