@@ -2,18 +2,20 @@ import { useState, useEffect } from "react";
 import { 
   Container, TextField, Button, Typography, Box, CircularProgress 
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../Store/Store";
 import Layout from "../Layout/Layout";
 import { toast } from "react-toastify";
+import { sendOtp, verifyOtp } from "smtp-package";
 
 export default function Login() {
-  const { login, setisAdmin, setisLogin } = useStore();
+  const { login, setisAdmin, setisLogin, skipotp } = useStore();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    otp: '',
     devicedetails: 'Not Available',
     loginTime: '',
     clientInfo: {}
@@ -22,6 +24,23 @@ export default function Login() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState('login'); // 'login' or 'otp'
+  const [resendCount, setResendCount] = useState(0);
+  const [cooldown, setCooldown] = useState(0);
+  const [isResendDisabled, setIsResendDisabled] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (cooldown > 0) {
+      timer = setInterval(() => {
+        setCooldown(cooldown - 1);
+      }, 1000);
+    } else {
+      setIsResendDisabled(false);
+    }
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const getFormattedDateTime = () => {
     const now = new Date();
@@ -126,8 +145,7 @@ export default function Login() {
         };
 
         // Create a detailed device information string
-        const devicedetails = `
-          Login Time (UTC): ${clientInfo.loginDateTime}
+        const devicedetails = `Login Time (UTC): ${clientInfo.loginDateTime}
           Location: ${clientInfo.location.city}, ${clientInfo.location.country} (${clientInfo.location.latitude}, ${clientInfo.location.longitude})
           IP: ${clientInfo.location.ip}
           ISP: ${clientInfo.location.org}
@@ -137,8 +155,7 @@ export default function Login() {
           Screen: ${clientInfo.screen.screenWidth}x${clientInfo.screen.screenHeight}
           Battery: ${clientInfo.battery.level}% (${clientInfo.battery.charging ? 'Charging' : 'Not Charging'})
           Network: ${typeof clientInfo.network === 'object' ? clientInfo.network.effectiveType : 'N/A'}
-          Language: ${clientInfo.browser.language}
-        `.trim();
+          Language: ${clientInfo.browser.language}`.trim();
 
         setFormData(prevState => ({
           ...prevState,
@@ -178,7 +195,8 @@ export default function Login() {
   const validate = () => {
     const tempErrors = {};
     if (!formData.email) tempErrors.email = 'Email is required';
-    if (!formData.password) tempErrors.password = 'Password is required';
+    if (step === 'login' && !formData.password) tempErrors.password = 'Password is required';
+    if (step === 'otp' && !formData.otp) tempErrors.otp = 'OTP is required';
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
@@ -188,41 +206,105 @@ export default function Login() {
     if (validate()) {
       setLoading(true);
       try {
-        // Add login timestamp to the request
-        const loginData = {
-          ...formData,
-          loginTimestamp: getFormattedDateTime(),
-        };
+        if (skipotp) {
+          // Directly login without OTP
+          const loginData = {
+            ...formData,
+            loginTimestamp: getFormattedDateTime(),
+          };
 
-        const response = await login(loginData);
+          const response = await login(loginData);
 
-        if (response?.valid) {
-          setisLogin(response.valid);
-          setisAdmin(response.isAdmin);
-          localStorage.setItem("isAdmin", response.isAdmin);
-          localStorage.setItem("isLogin", response.valid);
-          localStorage.setItem("token", response.token);
-          localStorage.setItem("custommerid", response.custommerId);
-          localStorage.setItem("lastLoginTime", loginData.loginTimestamp);
-          localStorage.setItem("clientInfo", JSON.stringify(formData.clientInfo));
+          if (response?.valid) {
+            setisLogin(response.valid);
+            setisAdmin(response.isAdmin);
+            localStorage.setItem("isAdmin", response.isAdmin);
+            localStorage.setItem("isLogin", response.valid);
+            localStorage.setItem("token", response.token);
+            localStorage.setItem("custommerid", response.custommerId);
+            localStorage.setItem("lastLoginTime", loginData.loginTimestamp);
+            localStorage.setItem("clientInfo", JSON.stringify(formData.clientInfo));
 
-          toast.success('Welcome back!');
-          setTimeout(() => {
-            window.location.reload();
-            navigate('/');
-          }, 2000);
+            toast.success('Welcome back!');
+            setTimeout(() => {
+              window.location.reload();
+              navigate('/');
+            }, 2000);
+          } else {
+            toast.error('User may not exist or the password is incorrect. Please check your credentials or create an account.');
+          }
         } else {
-          toast.error('Invalid email or password.');
+          if (step === 'login') {
+            // Send OTP
+            await sendOtp(formData.email, 'sf8s48fsf4s4f8s4d8f48sf');
+            toast.success('OTP sent to your email.');
+            setStep('otp');
+          } else if (step === 'otp') {
+            // Verify OTP
+            const isValidOtp = await verifyOtp(formData.email, formData.otp, 'sf8s48fsf4s4f8s4d8f48sf');
+            console.log(isValidOtp)
+            if (isValidOtp?.valid) {
+              // Proceed with login
+              const loginData = {
+                ...formData,
+                loginTimestamp: getFormattedDateTime(),
+              };
+
+              const response = await login(loginData);
+        
+              if (response?.valid) {
+                setisLogin(response.valid);
+                setisAdmin(response.isAdmin);
+                localStorage.setItem("isAdmin", response.isAdmin);
+                localStorage.setItem("isLogin", response.valid);
+                localStorage.setItem("token", response.token);
+                localStorage.setItem("custommerid", response.custommerId);
+                localStorage.setItem("lastLoginTime", loginData.loginTimestamp);
+                localStorage.setItem("clientInfo", JSON.stringify(formData.clientInfo));
+
+                toast.success('Welcome back!');
+                setTimeout(() => {
+                  window.location.reload();
+                  navigate('/');
+                }, 2000);
+              } else {
+                toast.error('User may not exist or the password is incorrect. Please check your credentials or create an account.');
+                setTimeout(() => {
+                  window.location.reload();
+                }, 3000);
+              }
+            } else {
+              toast.error(isValidOtp.message || 'Invalid OTP. Please try again.');  
+            }
+          }
         }
       } catch (error) {
-        toast.error('Login failed. Please try again.');
+        toast.error('An error occurred. Please try again.');
       } finally {
         setLoading(false);
       }
     }
   };
 
-  // Rest of the component remains the same...
+  const handleResendOtp = async () => {
+    if (resendCount < 5) {
+      try {
+        setResendLoading(true);
+        await sendOtp(formData.email, 'sf8s48fsf4s4f8s4d8f48sf');
+        toast.success('OTP resent to your email.');
+        setResendCount(resendCount + 1);
+        setIsResendDisabled(true);
+        setCooldown(60);
+      } catch (error) {
+        toast.error('Failed to resend OTP. Please try again.');
+      } finally {
+        setResendLoading(false);
+      }
+    } else {
+      toast.error('You have reached the maximum resend attempts. Please try again later.');
+    }
+  };
+
   return (
     <Layout title="Vmarg - Login">
       <Box
@@ -256,28 +338,61 @@ export default function Login() {
           >
             <Typography variant="h5" textAlign="center">Login</Typography>
 
-            <TextField
-              fullWidth
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={!!errors.email}
-              helperText={errors.email}
-              required
-            />
-            <TextField
-              fullWidth
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              error={!!errors.password}
-              helperText={errors.password}
-              required
-            />
+            {step === 'login' ? (
+              <>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  error={!!errors.email}
+                  helperText={errors.email}
+                  required
+                />
+                <TextField
+                  fullWidth
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  error={!!errors.password}
+                  helperText={errors.password}
+                  required
+                />
+              </>
+            ) : (
+              <>
+                <TextField
+                  fullWidth
+                  label="OTP"
+                  type="text"
+                  name="otp"
+                  value={formData.otp}
+                  onChange={handleChange}
+                  error={!!errors.otp}
+                  helperText={errors.otp}
+                  required
+                />
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  fullWidth
+                  onClick={handleResendOtp}
+                  disabled={isResendDisabled || resendLoading}
+                  sx={{
+                    padding: 1.5,
+                    fontSize: '1rem',
+                    '&:hover': { backgroundColor: 'rgb(4,4,38)' },
+                  }}
+                  startIcon={resendLoading ? <CircularProgress size={20} color="inherit" /> : null}
+                >
+                  {resendLoading ? "Resending..." : isResendDisabled ? `Resend OTP (${cooldown}s)` : "Resend OTP"}
+                </Button>
+              </>
+            )}
 
             <Button
               variant="contained"
@@ -293,12 +408,14 @@ export default function Login() {
               }}
               startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? "Processing..." : step === 'login' ? "Send OTP" : "Verify OTP"}
             </Button>
 
-            <Typography variant="body2" textAlign="center" mt={1}>
-              Don't have an account? <a href="/Signup" style={{ color: "blue", textDecoration: "none" }}>Sign Up</a>
-            </Typography>
+            {step === 'login' && (
+              <Typography variant="body2" textAlign="center" mt={1}>
+                Don't have an account? <Link to="/Signup" style={{ color: "blue", textDecoration: "none" }}>Sign Up</Link>
+              </Typography>
+            )}
           </Box>
         </Container>
       </Box>

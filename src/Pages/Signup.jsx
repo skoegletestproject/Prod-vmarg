@@ -2,7 +2,7 @@ import { useState } from "react";
 import { 
   Container, TextField, Button, Typography, Box, CircularProgress 
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useStore } from "../Store/Store"; // Assuming your store is correctly set up
 import Layout from "../Layout/Layout";
 import { toast } from "react-toastify";
@@ -179,7 +179,7 @@ export default function SignUp() {
               {loading ? 'Submitting...' : 'Sign Up'}
             </Button>
             <Typography variant="body2" textAlign="center" mt={1}>
-              Do you have an account? <a href="/login" style={{ color: "blue", textDecoration: "none" }}>Login</a>
+              Do you have an account? <Link to="/login" style={{ color: "blue", textDecoration: "none" }}>Login</Link>
             </Typography>
           </Box>
         </Container>
