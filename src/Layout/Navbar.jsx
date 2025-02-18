@@ -6,7 +6,7 @@ import { useStore } from "../Store/Store";
 
 export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState(null);
-  const { isAdmin, isLogin, setisLogin, logout } = useStore();
+  const { isAdmin, isLogin, setisLogin } = useStore();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -15,7 +15,6 @@ export default function Navbar() {
   function LogotManage() {
     localStorage.clear();
     setisLogin(false);
-    logout();
     console.clear();
   }
 

@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { signup, login, logout, verifyUser } from "./AuthApis";
+import { signup, login, verifyUser } from "./AuthApis";
 import { fetchUserProfile, updateUserProfile } from "./ProfileApis";
 import { fetchDevicesByCustomerId,GetRegisterdDevices,deleteDeviceByDeviceString,deleteMultipleDevices,AddUser,addDevicesToCustomer, fetchCustomers, deleteCustomer, deleteRegesteredDevice } from "./DeviceApi";
 
@@ -14,8 +14,8 @@ export function useStore() {
 }
 
 export function StoreProvider({ children }) {
-  const [isLogin, setisLogin] = useState(localStorage?.getItem("isLogin") === "true");
-  const [isAdmin, setisAdmin] = useState(localStorage?.getItem("isAdmin") === "true");
+  const [isLogin, setisLogin] = useState(localStorage?.getItem("isLogin") === "true" || false);
+  const [isAdmin, setisAdmin] = useState(localStorage?.getItem("isAdmin") === "true" || false);
   const [token, settoken] = useState(localStorage?.getItem("token") || "");
   
 
@@ -46,7 +46,6 @@ export function StoreProvider({ children }) {
   }, []);
 
   const handleLogout = () => {
-    logout(); 
     localStorage.clear(); 
     setisLogin(false);
     setisAdmin(false);
@@ -59,7 +58,6 @@ export function StoreProvider({ children }) {
       value={{
         signup,
         login,
-        logout,
         setisAdmin,
         setisLogin,
         settoken,

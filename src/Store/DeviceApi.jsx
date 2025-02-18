@@ -8,7 +8,12 @@ const BASE_URL = VITE_ENV === "local" ? VITE_LOCAL_URL : VITE_WEB_URL
 //divece token collection
 export async function fetchDevicesByCustomerId(custommerId) {
   try {
-    const response = await axios.get(`${BASE_URL}/api/devices/users/admin/custommer?token=${localStorage.getItem("token")}`);
+    const response = await axios.get(`${BASE_URL}/api/devices/users/admin/custommer`,{
+      headers: {
+        'Authorization': `Bearer ${localStorage?.getItem("token")}`
+    },
+      withCredentials:true
+    });
     // console.log('Fetched Devices:', response.data);
     return response.data;
   } catch (error) {
@@ -18,7 +23,12 @@ export async function fetchDevicesByCustomerId(custommerId) {
 
 export async function deleteDeviceByDeviceString(deviceString) {
   try {
-    const response = await axios.delete(`${BASE_URL}/api/devices/users/admin/custommer/${deviceString}?token=${localStorage?.getItem("token")}`);
+    const response = await axios.delete(`${BASE_URL}/api/devices/users/admin/custommer/${deviceString}`,{
+      headers: {
+        'Authorization': `Bearer ${localStorage?.getItem("token")}`
+    },
+      withCredentials:true
+    });
     console.log('Deleted Device:', response.data);
     return response.data;
   } catch (error) {
@@ -68,7 +78,12 @@ export async function AddUser(userData) {
 
 export const fetchCustomers = async (custommerId) => {
   try {
-    const response = await axios.get(`${BASE_URL}/api/devices/users/admin/custommer/myusers?token=${localStorage?.getItem("token")}`);
+    const response = await axios.get(`${BASE_URL}/api/devices/users/admin/custommer/myusers`,{
+      headers: {
+        'Authorization': `Bearer ${localStorage?.getItem("token")}`
+    },
+      withCredentials:true
+    });
     console.log("Fetched customers:", response.data);
     return response.data;
   } catch (error) {
@@ -96,7 +111,12 @@ export const GetRegisterdDevices = async () => {
   try {
 
 
-    const response = await axios.get(`${BASE_URL}/api/user/devices/getdevices?token=${localStorage.getItem("token")}`)
+    const response = await axios.get(`${BASE_URL}/api/user/devices/getdevices`,{
+      headers: {
+        'Authorization': `Bearer ${localStorage?.getItem("token")}`
+    },
+      withCredentials:true
+    })
 
     return response.data;
 
@@ -112,10 +132,13 @@ export const deleteRegesteredDevice = async (device) => {
 
   console.log
   try {
-      const response = await axios.delete(`${BASE_URL}/api/dmarg/device/delete?token=${localStorage.getItem("token")}`,{
+      const response = await axios.delete(`${BASE_URL}/api/dmarg/device/delete`,{
      data :{
       deviceName:device
-     }
+     },
+      headers: {
+        'Authorization': `Bearer ${localStorage?.getItem("token")}`
+    },
       });
       console.log(response.data);
       return response.data;
