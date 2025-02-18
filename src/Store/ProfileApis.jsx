@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const {VITE_ENV,VITE_LOCAL_URL,VITE_WEB_URL} = import.meta.env
 
-const BASE_URL = VITE_ENV==="local"?`${VITE_LOCAL_URL}/api/user/profile`:`${VITE_WEB_URL}/api/user/profile}`
+const BASE_URL = VITE_ENV==="local"?`${VITE_LOCAL_URL}/api/user/profile`:`${VITE_WEB_URL}/api/user/profile`
 
 export const fetchUserProfile = async () => {
   try {
