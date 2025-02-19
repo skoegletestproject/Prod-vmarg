@@ -14,6 +14,7 @@ import {
   Alert,
   CircularProgress,
   IconButton,
+  LinearProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -34,6 +35,7 @@ export default function RegisterDevice() {
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("info");
+  const [loadingStep, setLoadingStep] = useState(null);
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -102,6 +104,7 @@ export default function RegisterDevice() {
     }
 
     try {
+      setLoadingStep("Validating device...");
       const cleanedDeviceCode = deviceCode.replace(/\n/g, "");
       await axios.post("https://production-server-tygz.onrender.com/api/verify/adddevice", {
         deviceName,
@@ -110,6 +113,7 @@ export default function RegisterDevice() {
         nickname,
       });
 
+      setLoadingStep("Registering device with your customer ID...");
       await axios.post("https://production-server-tygz.onrender.com/api/realtime/logs", {
         deviceName: deviceName,
         latitude: 37.7749,
@@ -118,6 +122,7 @@ export default function RegisterDevice() {
         time: "14:30:00",
       });
 
+      setLoadingStep("Adding device...");
       setSuccess(true);
       setSnackbarMessage("Device registered successfully!");
       setSnackbarSeverity("success");
@@ -131,6 +136,7 @@ export default function RegisterDevice() {
       setSnackbarSeverity("error");
       setShowSnackbar(true);
     } finally {
+      setLoadingStep(null);
       setOpenCamera(true);
     }
   };
@@ -192,9 +198,17 @@ export default function RegisterDevice() {
               margin="normal"
               required
             />
+            {loadingStep && (
+              <Box sx={{ mt: 2 }}>
+                <LinearProgress />
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                  {loadingStep}
+                </Typography>
+              </Box>
+            )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleNicknameSubmit} color="primary">
+            <Button onClick={handleNicknameSubmit} color="primary" disabled={loadingStep !== null}>
               Submit
             </Button>
           </DialogActions>

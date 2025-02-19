@@ -4,13 +4,15 @@ import "leaflet/dist/leaflet.css";
 import Layout from "../Layout/Layout";
 import { useStore } from "../Store/Store";
 import { initializeApp } from "firebase/app";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue, set, remove } from "firebase/database";
 import L from "leaflet";
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import "./Live.css"; // Import the CSS file
 import { firebaseConfig } from "./Firebase";
+import {  toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
@@ -126,14 +128,45 @@ export default function Live() {
       await deleteRegesteredDevice(device);
       setDeviceOptions((prev) => prev.filter((d) => d.value !== device));
       setSelectedDevices((prev) => prev.filter((d) => d !== device));
+      toast.success("Device deleted successfully.");
     } catch (error) {
       console.error("Error deleting device:", error);
       setError("Failed to delete device.");
+      toast.error("Failed to delete device.");
+    }
+  };
+
+  const handleAddGeofencing = async (device) => {
+    const data = deviceData[device];
+    if (data?.found) {
+      try {
+        await set(ref(database, `${device}/geofencing`), {
+          lat: data.lat,
+          lng: data.lng,
+        });
+        toast.success("Geofencing coordinates added successfully.");
+      } catch (error) {
+        console.error("Error adding geofencing coordinates:", error);
+        setError("Failed to add geofencing coordinates.");
+        toast.error("Failed to add geofencing coordinates.");
+      }
+    }
+  };
+
+  const handleDeleteGeofencing = async (device) => {
+    try {
+      await remove(ref(database, `${device}/geofencing`));
+      toast.success("Geofencing coordinates deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting geofencing coordinates:", error);
+      setError("Failed to delete geofencing coordinates.");
+      toast.error("Failed to delete geofencing coordinates.");
     }
   };
 
   return (
     <Layout title={"Vmarg - Live"}>
+    
       <div className="live-container">
         <div className="map-container">
           <MapContainer
@@ -160,6 +193,12 @@ export default function Live() {
                     </button>
                     <button onClick={() => handleDelete(device)} className="delete-button">
                       Delete Device
+                    </button>
+                    <button onClick={() => handleAddGeofencing(device)} className="geofencing-button">
+                      Add Geofencing
+                    </button>
+                    <button onClick={() => handleDeleteGeofencing(device)} className="geofencing-button">
+                      Delete Geofencing
                     </button>
                   </Popup>
                 </Marker>
@@ -194,6 +233,8 @@ export default function Live() {
                     <p>Last Updated: {deviceData[device]?.lastUpdated ?? "Waiting for update..."}</p>
                     <button onClick={() => handleShare(device)} className="share-button"> View on Google Maps</button>
                     <button onClick={() => handleDelete(device)} className="delete-button"> Delete Device</button>
+                    <button onClick={() => handleAddGeofencing(device)} className="geofencing-button"> Add Geofencing</button>
+                    <button onClick={() => handleDeleteGeofencing(device)} className="geofencing-button"> Delete Geofencing</button>
                   </>
                 )}
                 <hr />

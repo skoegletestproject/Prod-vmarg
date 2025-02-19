@@ -68,8 +68,9 @@ export default function SignUp() {
           display: "flex", 
           justifyContent: "center", 
           alignItems: "center", 
-          height: "100vh", 
+          height: "90vh", 
           padding: 2,
+          overflow: "hidden", // Added to remove scroller
         }}
       >
         <Container maxWidth="sm">
