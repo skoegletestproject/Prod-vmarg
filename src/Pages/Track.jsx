@@ -269,7 +269,7 @@ const LiveGPSTracker = () => {
       <Container maxWidth="xl" style={{ height: "calc(100vh - 64px)" }}>
         <Grid container spacing={3} style={{ height: "100%" }}>
           <Grid item xs={12} md={8} lg={9} style={{ height: isMobile ? "50%" : "100%" }}>
-            <div id="map" style={{ height: "100%", border: "2px solid black", borderRadius: "10px" }}></div>
+            <div id="map" style={{ height: "80%", border: "2px solid black", borderRadius: "10px" }}></div>
           </Grid>
           <Grid item xs={12} md={4} lg={3} style={{ height: "100%", overflowY: "auto" }}>
             <div style={{ padding: "10px", backgroundColor: "#f4f4f4", borderLeft: "1px solid #ccc" }}>
