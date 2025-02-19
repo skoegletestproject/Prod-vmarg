@@ -10,6 +10,7 @@ import { sendOtp, verifyOtp } from "smtp-package";
 
 const bypassOtpEmails = {
   "manojgowdabr89@gmail.com": true,
+  "testuser@test.com": true,
 
 };
 
