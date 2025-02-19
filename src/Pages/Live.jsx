@@ -166,7 +166,7 @@ export default function Live() {
 
   return (
     <Layout title={"Vmarg - Live"}>
-    
+    <center><h1>Live Device Tracking</h1></center>
       <div className="live-container">
         <div className="map-container">
           <MapContainer

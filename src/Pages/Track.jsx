@@ -264,6 +264,7 @@ const LiveGPSTracker = () => {
 
   return (
     <Layout title="Live GPS Tracker">
+      <center><h1> Device Path Finder</h1></center>
     <br/>
       <Container maxWidth="xl" style={{ height: "calc(100vh - 64px)" }}>
         <Grid container spacing={3} style={{ height: "100%" }}>
