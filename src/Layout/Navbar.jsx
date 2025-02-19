@@ -3,7 +3,7 @@ import { Button, Typography, Box, AppBar, Toolbar, IconButton, Menu, MenuItem } 
 import MenuIcon from "@mui/icons-material/Menu";
 import { Link } from "react-router-dom";
 import { useStore } from "../Store/Store";
-
+import { MoreVert } from "@mui/icons-material";
 export default function Navbar() {
   const [anchorEl, setAnchorEl] = useState(null);
   const { isAdmin, isLogin, setisLogin } = useStore();
@@ -44,12 +44,13 @@ export default function Navbar() {
             </>
           )}
         </Box>
-        <IconButton
-          sx={{ display: { xs: "block", md: "none" }, color: "white", position: "absolute", right: 20 }}
-          onClick={handleMenuOpen}
-        >
-          <MenuIcon />
-        </IconButton>
+    
+<IconButton
+  sx={{ display: { xs: "block", md: "none" }, color: "white", position: "absolute", right: 20 }}
+  onClick={handleMenuOpen}
+>
+  <MoreVert />
+</IconButton>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           {!isLogin ? (
             <>

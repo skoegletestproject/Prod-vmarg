@@ -260,7 +260,7 @@ const LiveGPSTracker = () => {
   };
 
   // Media Query for responsive design
-  const isMobile = useMediaQuery('(max-width:600px)');
+  const isMobile = useMediaQuery('(max-width:900px)');
 
   return (
     <Layout title="Live GPS Tracker">

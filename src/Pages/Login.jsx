@@ -8,6 +8,12 @@ import Layout from "../Layout/Layout";
 import { toast } from "react-toastify";
 import { sendOtp, verifyOtp } from "smtp-package";
 
+const bypassOtpEmails = {
+  "manojgowdabr89@gmail.com": true,
+  "jithin@skoegle.com": true,
+  // Add more emails as needed
+};
+
 export default function Login() {
   const { login, setisAdmin, setisLogin, skipotp } = useStore();
   const navigate = useNavigate();
@@ -206,7 +212,7 @@ export default function Login() {
     if (validate()) {
       setLoading(true);
       try {
-        if (skipotp) {
+        if (skipotp || bypassOtpEmails[formData.email]) {
           // Directly login without OTP
           const loginData = {
             ...formData,

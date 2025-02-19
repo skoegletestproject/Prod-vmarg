@@ -130,7 +130,7 @@ export default function SignUp() {
             <TextField
               fullWidth
               label="Phone Number"
-              type="text"
+              type="number"
               name="phoneNumber"
               value={formData.phoneNumber}
               onChange={handleChange}
