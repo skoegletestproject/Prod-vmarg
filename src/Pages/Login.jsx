@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import { sendOtp, verifyOtp } from "smtp-package";
 
 const bypassOtpEmails = {
-  "manojgowjdabr89@gmail.com": true,
+  "manojgowdabr89@gmail.com": true,
   "testuser@test.com": true,
 
 };
